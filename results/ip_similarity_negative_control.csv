@@ -1,0 +1,35 @@
+sample_id,publisher,best_match_sample_id,best_match_publisher,loo_best_similarity,known_confound
+967728cf,Businessday NG,0e36a519,TheCable,0.5083548426628113,False
+0e36a519,TheCable,9f4a0ed3,Punch Newspapers,0.9390221238136292,True
+9f4a0ed3,Punch Newspapers,0e36a519,TheCable,0.9390221238136292,True
+b7e4e06f,LEADERSHIP Newspapers,0e36a519,TheCable,0.5657582879066467,False
+cc852391,Punch Newspapers,cc3dbb69,Punch Newspapers,0.6460351347923279,False
+cc3dbb69,Punch Newspapers,9fb020a1,LEADERSHIP Newspapers,0.6981164216995239,False
+4708103c,Healthwise,71e76194,Vanguard News,0.7293543815612793,False
+13d78d1c,Punch Newspapers,9bebd519,Vanguard News,0.6385538578033447,False
+99d68b31,Punch Newspapers,cc3dbb69,Punch Newspapers,0.669482946395874,False
+a14d9d16,Premium Times Nigeria,8cdb1827,Premium Times Nigeria,0.5826335549354553,False
+8cdb1827,Premium Times Nigeria,ca01865e,Vanguard News,0.6542626619338989,False
+322b7536,Premium Times Nigeria,175e464d,Vanguard News,0.5404924750328064,False
+1e8860b6,Premium Times Nigeria,322b7536,Premium Times Nigeria,0.5033006072044373,False
+0fb59c27,Premium Times Nigeria,13d78d1c,Punch Newspapers,0.2886975407600403,False
+71e76194,Vanguard News,4708103c,Healthwise,0.7293543815612793,False
+ca01865e,Vanguard News,9bebd519,Vanguard News,0.7428524494171143,False
+9bebd519,Vanguard News,ca01865e,Vanguard News,0.7428524494171143,False
+d20ebcba,Vanguard News,871edac5,LEADERSHIP Newspapers,0.7399972081184387,False
+175e464d,Vanguard News,322b7536,Premium Times Nigeria,0.5404924750328064,False
+671c19ee,Businessday NG,cc852391,Punch Newspapers,0.5493085980415344,False
+a18af7c8,Businessday NG,36d27a86,Businessday NG,0.8404400944709778,True
+9a5eac81,Businessday NG,36d27a86,Businessday NG,0.8224522471427917,True
+36d27a86,Businessday NG,a18af7c8,Businessday NG,0.8404400944709778,True
+1de77eac,Businessday NG,a18af7c8,Businessday NG,0.7614965438842773,False
+eba8b82c,TheCable,cc3dbb69,Punch Newspapers,0.6898593902587891,False
+f1bcea96,TheCable,8cdb1827,Premium Times Nigeria,0.5724548101425171,False
+b8b67dac,TheCable,71e76194,Vanguard News,0.6323540806770325,False
+2e24b493,TheCable,36d27a86,Businessday NG,0.2504417300224304,False
+51454681,TheCable,13d78d1c,Punch Newspapers,0.44470667839050293,False
+59e31bad,LEADERSHIP Newspapers,871edac5,LEADERSHIP Newspapers,0.707647979259491,False
+69cc042b,LEADERSHIP Newspapers,d20ebcba,Vanguard News,0.6693893074989319,False
+871edac5,LEADERSHIP Newspapers,d20ebcba,Vanguard News,0.7399972081184387,False
+9fb020a1,LEADERSHIP Newspapers,a18af7c8,Businessday NG,0.7095105648040771,False
+49d54fcd,LEADERSHIP Newspapers,69cc042b,LEADERSHIP Newspapers,0.591867983341217,False

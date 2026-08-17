@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Naija AI Ethics Watchdog{% endblock %} — Compliance Review</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-title">Naija AI Ethics Watchdog</span>
+        <span class="sidebar-brand-subtitle">Compliance Review</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Violations</a></li>
+        <li><a href="{{ url_for('upload') }}" class="{{ 'active' if request.endpoint == 'upload' }}">Submit Content</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        Internal compliance tool.<br>
+        Every complaint here is a machine draft — §3.13 requires human
+        review before dispatch.
+      </div>
+    </nav>
+
+    <main class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

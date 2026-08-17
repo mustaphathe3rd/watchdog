@@ -1,0 +1,71 @@
+# =============================================================================
+# Naija AI Ethics Watchdog - requirements.txt
+# Project: Development of an Automated AI Ethics Watchdog for Regulatory
+#          Compliance and IP Protection in Nigeria
+# Author:  Arukwe Chibuikem David | 20211285585 | SCIT Owerri
+#
+# INSTALL COMMAND (run once in your virtualenv):
+#   pip install -r requirements.txt
+#
+# NOTE ON TORCH:
+#   This installs the CPU-only build of PyTorch — no NVIDIA GPU required.
+#   Model TRAINING is done in Google Colab (free T4 GPU).
+#   Local inference and all other modules run on CPU only.
+#   This is consistent with §1.7 Limitations of the study.
+# =============================================================================
+
+# ── Computer Vision Layer (§3.12 A - Visual/Video Detection Engine) ─────────
+opencv-python==4.9.0.80          # cv2.VideoCapture for frame extraction (§3.10 Step 1)
+# MTCNN implementation for facial alignment (FR-02 specifies the algorithm, not a
+# package). benchmark_face_detection.py compared this against the TensorFlow-based
+# `mtcnn` package on 10 real corpus frames: facenet-pytorch won on median per-frame
+# CPU time (0.228s vs 0.946s, ~4x) with mean IoU 0.76 on frames where both detected
+# a face. Switching avoids carrying TensorFlow alongside the torch stack already
+# required below. The `mtcnn` package has been dropped from this file accordingly.
+facenet-pytorch==2.6.0
+mediapipe==1.0.0                 # Face Mesh dense landmarks, Stage 2 (watchdog/cv_engine.py)
+
+# ── Deep Learning — CPU Build ─────────────────────────────────────────────────
+# For GPU training in Colab, torch is already pre-installed there.
+# This CPU build is for LOCAL inference of downloaded .pt checkpoints.
+torch==2.2.2                     # Core DL framework; BCE loss (§3.11)
+torchvision==0.17.2              # EfficientNet-B0 backbone for CV classifier (§3.12 A)
+
+# ── NLP Layer (§3.12 B - Textual and Plagiarism Detection Engine) ────────────
+transformers==4.40.1             # DistilBERT for perplexity scoring (FR-04)
+sentence-transformers==2.7.0     # Embeddings for IP similarity matrix (§3.12 B)
+spacy==3.7.4                     # Tokenization + stop-word removal (§3.10 Step 3)
+
+# ── Audio (viseme-phoneme sync analysis) ─────────────────────────────────────
+librosa==0.10.2                  # Phoneme onset detection for lip-sync check (FR-03)
+soundfile==0.12.1                # Audio I/O backend for librosa
+
+# ── Complaint / Report Generation (§3.13) ────────────────────────────────────
+reportlab==4.2.0                 # PDF auto-complaint generator (FR-06)
+
+# ── Data Acquisition / Scraping (§3.9 Dataset Description) ──────────────────
+requests==2.31.0                 # HTTP requests for media scraping
+beautifulsoup4==4.12.3           # HTML parsing for publisher metadata (§3.5.1)
+lxml==5.2.2                      # HTML5-compliant parser backend for BeautifulSoup —
+                                  # stdlib html.parser doesn't auto-close unclosed <p>
+                                  # tags, which some sites emit (see scraper.py note)
+yt-dlp==2024.5.27                # Public video download for ad dataset
+
+# ── Database / Backend (NFR-04 Auditability) ─────────────────────────────────
+psycopg2-binary==2.9.9           # PostgreSQL adapter
+SQLAlchemy==2.0.30               # ORM for violation + report models (NFR-04)
+Flask==3.0.3                     # Admin dashboard web server (§3.13 Routing)
+
+# ── Evaluation & Visualisation (§3.14 Evaluation Strategy) ──────────────────
+scikit-learn==1.4.2              # Precision / Recall / F1 / confusion matrix
+matplotlib==3.8.4                # ROC curves and confusion matrix heatmaps
+seaborn==0.13.2                  # Styled heatmaps for Chapter 4 figures
+pandas==2.2.2                    # Dataset manifest management (manifest.csv)
+numpy==1.26.4                    # Numerical operations throughout pipeline
+
+# ── Dev Tools ────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1             # Load .env config (keeps secrets out of code)
+tqdm==4.66.4                     # Progress bars for long scraping/training jobs
+pytest==8.2.0                    # Unit and integration tests (tests/ directory)
+jupyter==1.0.0                   # EDA + training notebooks (notebooks/ directory)
+ipykernel==6.29.4                # Jupyter kernel

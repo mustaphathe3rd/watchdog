@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Violations{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Violations</h1>
+  <p class="page-subtitle">Most recent first. This is every row currently in the
+    <code>violations</code> table — nothing here is illustrative.</p>
+</div>
+
+{% if violations %}
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Detected</th>
+          <th>Violation type</th>
+          <th>Statute cited</th>
+          <th>Publisher</th>
+          <th>Psynth</th>
+          <th>Report status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations %}
+        <tr class="row-link" onclick="window.location='{{ url_for('violation_detail', violation_id=v.id) }}'">
+          <td>{{ v.detected_at.strftime('%Y-%m-%d %H:%M UTC') if v.detected_at else '—' }}</td>
+          <td><span class="pill pill-type">{{ v.violation_type }}</span></td>
+          <td>{{ v.statute_cited }}</td>
+          <td>{{ v.publisher_name or 'Unknown' }}</td>
+          <td class="numeric">{{ '%.4f'|format(v.psynth_score) }}</td>
+          <td>
+            {% if v.report %}
+              {% if v.report.status == 'PENDING_REVIEW' %}
+                <span class="pill pill-amber">PENDING_REVIEW</span>
+              {% elif v.report.status == 'DISPATCHED' %}
+                <span class="pill pill-green">DISPATCHED</span>
+              {% else %}
+                <span class="pill">{{ v.report.status }}</span>
+              {% endif %}
+            {% else %}
+              <span class="pill pill-red">NO REPORT RECORD</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card empty-state">
+    <p><strong>No violations recorded yet.</strong></p>
+    <p class="muted">Nothing in this project's corpus has crossed
+      <code>config.PSYNTH_THRESHOLD</code> and been statutorily classified —
+      that is the true current state of the database, not a loading error.
+      Use <a href="{{ url_for('upload') }}">Submit Content</a> to run the
+      pipeline against a manifest sample or a live URL.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

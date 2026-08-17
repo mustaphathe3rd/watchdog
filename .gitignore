@@ -1,0 +1,56 @@
+# =============================================================================
+# .gitignore  —  Naija AI Watchdog
+# =============================================================================
+
+# Environment variables (NEVER commit — contains DB password)
+.env
+
+# yt-dlp cookies (NEVER commit — contains live session authentication)
+cookies.txt
+*.cookies.txt
+
+# Trained model checkpoints (large files — store on Google Drive)
+models/*.pt
+models/*.pkl
+models/*.pth
+
+# Raw dataset (large — store separately, not in Git)
+data/raw/
+data/processed/
+
+# Generated PDF complaints (legal documents — store securely)
+reports/*.pdf
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite test databases
+*.db
+*.sqlite3
+
+# Logs
+*.log

@@ -1,0 +1,66 @@
+sample_id,true_label,publisher,synthetic_genre,group,predicted_label,prob_synthetic,correct
+60ee644d,SYNTHETIC,,news,synthetic:claude-sonnet-5:news,AUTHENTIC,0.07231538742780685,False
+250553a1,SYNTHETIC,,news,synthetic:claude-sonnet-5:news,AUTHENTIC,0.1600598245859146,False
+9572d39d,SYNTHETIC,,news,synthetic:claude-sonnet-5:news,AUTHENTIC,0.23286348581314087,False
+bd319915,SYNTHETIC,,news,synthetic:claude-sonnet-5:news,AUTHENTIC,0.16495448350906372,False
+f17c10fc,SYNTHETIC,,news,synthetic:claude-sonnet-5:news,SYNTHETIC,0.6389117240905762,True
+0e95632d,SYNTHETIC,,ad_copy,synthetic:claude-sonnet-5:ad_copy,SYNTHETIC,0.7636809349060059,True
+36a0bf21,SYNTHETIC,,ad_copy,synthetic:claude-sonnet-5:ad_copy,SYNTHETIC,0.7862889766693115,True
+bc02d262,SYNTHETIC,,ad_copy,synthetic:claude-sonnet-5:ad_copy,SYNTHETIC,0.7229515910148621,True
+eefcbb37,SYNTHETIC,,ad_copy,synthetic:claude-sonnet-5:ad_copy,SYNTHETIC,0.7308320999145508,True
+7b0ce6c1,SYNTHETIC,,ad_copy,synthetic:claude-sonnet-5:ad_copy,SYNTHETIC,0.7491053342819214,True
+967728cf,AUTHENTIC,Businessday NG,,authentic:Businessday NG,SYNTHETIC,0.7877297401428223,False
+0e36a519,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.059970658272504807,True
+9f4a0ed3,AUTHENTIC,Punch Newspapers,,authentic:Punch Newspapers,AUTHENTIC,0.16251838207244873,True
+b7e4e06f,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,SYNTHETIC,0.8687195777893066,False
+cc852391,AUTHENTIC,Punch Newspapers,,authentic:Punch Newspapers,AUTHENTIC,0.1592744141817093,True
+cc3dbb69,AUTHENTIC,Punch Newspapers,,authentic:Punch Newspapers,AUTHENTIC,0.19906988739967346,True
+4708103c,AUTHENTIC,Healthwise,,authentic:Healthwise,AUTHENTIC,0.061298225075006485,True
+13d78d1c,AUTHENTIC,Punch Newspapers,,authentic:Punch Newspapers,AUTHENTIC,0.2770484685897827,True
+99d68b31,AUTHENTIC,Punch Newspapers,,authentic:Punch Newspapers,AUTHENTIC,0.18583324551582336,True
+a14d9d16,AUTHENTIC,Premium Times Nigeria,,authentic:Premium Times Nigeria,AUTHENTIC,0.19663240015506744,True
+8cdb1827,AUTHENTIC,Premium Times Nigeria,,authentic:Premium Times Nigeria,SYNTHETIC,0.8186250329017639,False
+322b7536,AUTHENTIC,Premium Times Nigeria,,authentic:Premium Times Nigeria,AUTHENTIC,0.16754621267318726,True
+1e8860b6,AUTHENTIC,Premium Times Nigeria,,authentic:Premium Times Nigeria,AUTHENTIC,0.15813489258289337,True
+0fb59c27,AUTHENTIC,Premium Times Nigeria,,authentic:Premium Times Nigeria,AUTHENTIC,0.16851989924907684,True
+71e76194,AUTHENTIC,Vanguard News,,authentic:Vanguard News,AUTHENTIC,0.08709493279457092,True
+ca01865e,AUTHENTIC,Vanguard News,,authentic:Vanguard News,AUTHENTIC,0.07553287595510483,True
+9bebd519,AUTHENTIC,Vanguard News,,authentic:Vanguard News,AUTHENTIC,0.070047527551651,True
+d20ebcba,AUTHENTIC,Vanguard News,,authentic:Vanguard News,AUTHENTIC,0.07492665946483612,True
+175e464d,AUTHENTIC,Vanguard News,,authentic:Vanguard News,AUTHENTIC,0.08590288460254669,True
+671c19ee,AUTHENTIC,Businessday NG,,authentic:Businessday NG,AUTHENTIC,0.18139007687568665,True
+a18af7c8,AUTHENTIC,Businessday NG,,authentic:Businessday NG,AUTHENTIC,0.11687556654214859,True
+9a5eac81,AUTHENTIC,Businessday NG,,authentic:Businessday NG,AUTHENTIC,0.13207027316093445,True
+36d27a86,AUTHENTIC,Businessday NG,,authentic:Businessday NG,AUTHENTIC,0.10842212289571762,True
+1de77eac,AUTHENTIC,Businessday NG,,authentic:Businessday NG,AUTHENTIC,0.1554354876279831,True
+eba8b82c,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.06735427677631378,True
+f1bcea96,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.06458838284015656,True
+b8b67dac,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.06423172354698181,True
+2e24b493,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.09982017427682877,True
+51454681,AUTHENTIC,TheCable,,authentic:TheCable,AUTHENTIC,0.06519570201635361,True
+59e31bad,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,AUTHENTIC,0.15566925704479218,True
+69cc042b,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,AUTHENTIC,0.1480611264705658,True
+871edac5,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,AUTHENTIC,0.15433800220489502,True
+9fb020a1,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,AUTHENTIC,0.345389723777771,True
+49d54fcd,AUTHENTIC,LEADERSHIP Newspapers,,authentic:LEADERSHIP Newspapers,AUTHENTIC,0.1565258800983429,True
+08d8a723,SYNTHETIC,,long_news,synthetic:claude:long_news,SYNTHETIC,0.8056769967079163,True
+5b3e52a7,SYNTHETIC,,long_news,synthetic:claude:long_news,SYNTHETIC,0.8067992329597473,True
+3c151f83,SYNTHETIC,,long_news,synthetic:claude:long_news,SYNTHETIC,0.8431376218795776,True
+d2987215,SYNTHETIC,,pidgin_ad,synthetic:claude:pidgin_ad,SYNTHETIC,0.9368377327919006,True
+c4a792c1,SYNTHETIC,,pidgin_ad,synthetic:claude:pidgin_ad,SYNTHETIC,0.9300174713134766,True
+bd518ad5,SYNTHETIC,,pidgin_social,synthetic:claude:pidgin_social,SYNTHETIC,0.913783848285675,True
+ecca8fb6,SYNTHETIC,,pidgin_news,synthetic:claude:pidgin_news,SYNTHETIC,0.878318190574646,True
+c35eca46,SYNTHETIC,,bureaucratic,synthetic:claude:bureaucratic,SYNTHETIC,0.8240901231765747,True
+9b05a6c9,SYNTHETIC,,bureaucratic,synthetic:claude:bureaucratic,AUTHENTIC,0.34242990612983704,False
+a38d2ef3,SYNTHETIC,,bureaucratic,synthetic:claude:bureaucratic,SYNTHETIC,0.6474199891090393,True
+8ba9fba0,SYNTHETIC,,bureaucratic,synthetic:claude:bureaucratic,SYNTHETIC,0.7324911952018738,True
+4d8065bb,SYNTHETIC,,ad_copy,synthetic:claude:ad_copy,SYNTHETIC,0.9022495150566101,True
+c66ab57c,SYNTHETIC,,ad_copy,synthetic:claude:ad_copy,SYNTHETIC,0.8787257671356201,True
+e38fef66,SYNTHETIC,,ad_copy,synthetic:claude:ad_copy,SYNTHETIC,0.870703399181366,True
+4a551f27,SYNTHETIC,,ad_copy,synthetic:claude:ad_copy,SYNTHETIC,0.8198877573013306,True
+45abc444,SYNTHETIC,,ad_copy,synthetic:claude:ad_copy,SYNTHETIC,0.8910691738128662,True
+d56cea2e,SYNTHETIC,,opinion,synthetic:claude:opinion,SYNTHETIC,0.8438110947608948,True
+ed032e1a,SYNTHETIC,,opinion,synthetic:claude:opinion,SYNTHETIC,0.5615144371986389,True
+bb461e06,SYNTHETIC,,news,synthetic:claude:news,SYNTHETIC,0.7732284069061279,True
+2401d48a,SYNTHETIC,,news,synthetic:claude:news,SYNTHETIC,0.8421424627304077,True
+09c5bd80,SYNTHETIC,,news,synthetic:claude:news,SYNTHETIC,0.8722995519638062,True

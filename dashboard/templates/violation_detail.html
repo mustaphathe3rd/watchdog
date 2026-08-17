@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Violation {{ violation.id }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <p class="breadcrumb"><a href="{{ url_for('index') }}">Violations</a> / {{ violation.id }}</p>
+  <h1><span class="pill pill-type pill-large">{{ violation.violation_type }}</span></h1>
+</div>
+
+<div class="caveat-panel">
+  <div class="caveat-heading">⚠ Human review required before dispatch</div>
+  <p>{{ caveat_always }}</p>
+</div>
+
+{% if show_ip_caveat %}
+<div class="caveat-panel">
+  <div class="caveat-heading">⚠ Known false-positive mode — IP similarity</div>
+  <p>{{ caveat_ip }}</p>
+</div>
+{% endif %}
+
+{% if show_cv_caveat %}
+<div class="caveat-panel">
+  <div class="caveat-heading">⚠ Known reliability limitation — CV heuristics</div>
+  <p>{{ caveat_cv }}</p>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Statutory basis and routing</h2>
+  <table class="kv-table">
+    <tr><th>Statute cited</th><td>{{ violation.statute_cited }}</td></tr>
+    <tr><th>Regulator</th><td>{{ violation.regulator }}</td></tr>
+    <tr><th>Summary</th><td>{{ violation.statute_summary }}</td></tr>
+    {% if evidence %}
+    <tr><th>Recommended action</th><td>{{ evidence.action }}</td></tr>
+    <tr><th>Basis</th><td>{{ evidence.basis }}</td></tr>
+    {% endif %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>Detection summary</h2>
+  <table class="kv-table">
+    <tr><th>Psynth (fused score)</th><td class="numeric">{{ '%.4f'|format(violation.psynth_score) }}</td></tr>
+    <tr><th>Modalities used</th><td>{{ modalities_used|join(', ') if modalities_used else 'unknown (no evidence_json on this row)' }}</td></tr>
+    <tr>
+      <th>p_visual</th>
+      <td>
+        {% if violation.p_visual is not none %}
+          <span class="numeric">{{ '%.4f'|format(violation.p_visual) }}</span>
+        {% else %}
+          <span class="pill pill-amber">ABSTAINED</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>p_text</th>
+      <td>
+        {% if violation.p_text is not none %}
+          <span class="numeric">{{ '%.4f'|format(violation.p_text) }}</span>
+        {% else %}
+          <span class="pill pill-amber">ABSTAINED</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr><th>Publisher</th><td>{{ violation.publisher_name or 'Unknown' }}</td></tr>
+    <tr><th>Source URL</th><td class="wrap">{{ violation.source_url }}</td></tr>
+    <tr><th>Detected at (forensic timestamp)</th><td>{{ violation.detected_at.strftime('%Y-%m-%d %H:%M:%S UTC') if violation.detected_at else '—' }}</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Evidentiary detail — text</h2>
+  {% if violation.p_text is not none %}
+    <p>
+      The fine-tuned classifier
+      {% if evidence and evidence.text_detail and evidence.text_detail.source %}(<code>{{ evidence.text_detail.source }}</code>){% endif %}
+      scored this text <strong>P(synthetic) = {{ '%.4f'|format(violation.p_text) }}</strong>,
+      predicted label
+      <strong>{{ 'SYNTHETIC' if violation.p_text >= 0.5 else 'AUTHENTIC' }}</strong>.
+    </p>
+  {% else %}
+    <div class="abstain-block">
+      <span class="pill pill-amber">ABSTAINED</span>
+      <span class="abstain-reason">
+        {% if evidence and evidence.text_detail and evidence.text_detail.abstain_reason %}
+          {{ evidence.text_detail.abstain_reason }}
+        {% else %}
+          No text evidence was used, and no reason was recorded on this row.
+        {% endif %}
+      </span>
+    </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Evidentiary detail — visual (CV)</h2>
+  {% if violation.p_visual is not none %}
+    <p>
+      Average heuristic score
+      <strong class="numeric">{{ '%.4f'|format(violation.p_visual) }}</strong>
+      {% if evidence and evidence.visual_detail %}
+        from {{ evidence.visual_detail.scored_heuristics|length }} of 4 Stage 4 heuristics that produced a score.
+      {% endif %}
+    </p>
+  {% else %}
+    <div class="abstain-block">
+      <span class="pill pill-amber">ABSTAINED</span>
+      <span class="abstain-reason">
+        {% if evidence and evidence.visual_detail and evidence.visual_detail.abstain_reason %}
+          {{ evidence.visual_detail.abstain_reason }}
+        {% else %}
+          No visual evidence was used, and no reason was recorded on this row.
+        {% endif %}
+      </span>
+    </div>
+  {% endif %}
+
+  {% if evidence and evidence.visual_detail %}
+    <h3 class="subheading">Per-heuristic breakdown</h3>
+    <table class="heuristic-table">
+      <tbody>
+        {% for name in evidence.visual_detail.scored_heuristics %}
+        <tr>
+          <td class="heuristic-name">{{ name }}</td>
+          <td><span class="pill pill-green">SCORED</span></td>
+          <td class="muted">Contributed to the average above (individual heuristic score not separately persisted).</td>
+        </tr>
+        {% endfor %}
+        {% for name, reason in evidence.visual_detail.abstained_heuristics.items() %}
+        <tr>
+          <td class="heuristic-name">{{ name }}</td>
+          <td><span class="pill pill-amber">ABSTAINED</span></td>
+          <td>{{ reason }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Evidentiary detail — matched protected work (IP similarity)</h2>
+  {% if evidence and evidence.ip_match %}
+    {% set m = evidence.ip_match %}
+    <table class="kv-table">
+      <tr><th>Protected work ID</th><td>{{ m.sample_id }}</td></tr>
+      <tr><th>Publisher</th><td>{{ m.publisher_name }}</td></tr>
+      <tr><th>Source URL</th><td class="wrap">{{ m.source_url }}</td></tr>
+      <tr><th>Cosine similarity</th><td class="numeric">{{ '%.4f'|format(m.similarity) }}</td></tr>
+    </table>
+    <p class="subheading">Closest matched passage in the protected work:</p>
+    <blockquote>{{ m.matched_passage }}</blockquote>
+  {% else %}
+    <p class="muted">Not applicable — this violation type is not IP_SCRAPING_PLAGIARISM, or no
+      IP-similarity check was run against this content.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Report</h2>
+  {% if violation.report %}
+    <table class="kv-table">
+      <tr><th>Status</th><td>
+        {% if violation.report.status == 'PENDING_REVIEW' %}
+          <span class="pill pill-amber">PENDING_REVIEW</span>
+        {% elif violation.report.status == 'DISPATCHED' %}
+          <span class="pill pill-green">DISPATCHED</span>
+        {% else %}
+          <span class="pill">{{ violation.report.status }}</span>
+        {% endif %}
+      </td></tr>
+      <tr><th>Generated at</th><td>{{ violation.report.generated_at.strftime('%Y-%m-%d %H:%M:%S UTC') if violation.report.generated_at else '—' }}</td></tr>
+    </table>
+    <p><a class="button" href="{{ url_for('serve_report', violation_id=violation.id) }}" target="_blank" rel="noopener">Open complaint PDF</a></p>
+  {% else %}
+    <p><span class="pill pill-red">NO REPORT RECORD</span> — this violation has no associated
+      <code>reports</code> row. This is an anomalous state (every violation this pipeline raises
+      generates a PDF in the same transaction) and is worth investigating, not routine.</p>
+  {% endif %}
+</div>
+
+{% if not evidence %}
+<div class="card empty-state">
+  <p class="muted">No detailed evidence_json is stored on this row (older rows predate the Day 16
+    schema addition, or it failed to parse — see server logs). Everything above still reflects
+    the authoritative <code>violations</code> table columns.</p>
+</div>
+{% endif %}
+
+{% endblock %}

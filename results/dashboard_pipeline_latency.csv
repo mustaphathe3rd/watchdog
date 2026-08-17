@@ -1,0 +1,8 @@
+timestamp,label,media_type,elapsed_s,budget_s,within_budget
+2026-08-13T13:51:53.398990+00:00,manifest sample 60ee644d-9d66-4e85-ba16-bf4856d07271,text,36.491,5,False
+2026-08-13T14:05:31.268900+00:00,manifest sample 6d95436c-2aec-44a4-bcbb-35b04870276a,video,32.062,30,False
+2026-08-13T14:15:43.551503+00:00,manifest sample 60ee644d-9d66-4e85-ba16-bf4856d07271,text,16.882,5,False
+2026-08-13T14:16:20.977110+00:00,manifest sample b1ce1815-a9f5-4f60-afb7-88fd0dcb9b61,video,4.886,30,True
+2026-08-13T15:05:02.164555+00:00,manifest sample 60ee644d-9d66-4e85-ba16-bf4856d07271,text,32.584,5,False
+2026-08-13T15:05:09.399167+00:00,manifest sample 60ee644d-9d66-4e85-ba16-bf4856d07271,text,2.625,5,True
+2026-08-13T15:05:14.372114+00:00,manifest sample 60ee644d-9d66-4e85-ba16-bf4856d07271,text,1.560,5,True

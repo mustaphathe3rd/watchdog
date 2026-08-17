@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Submit Content{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Submit Content</h1>
+  <p class="page-subtitle">Runs the real <code>main_pipeline</code> — the same code path
+    <code>python main_pipeline.py</code> uses from the command line. This is the pipeline
+    itself, not a simulation.</p>
+</div>
+
+<div class="card">
+  <form method="post" action="{{ url_for('upload') }}" class="upload-form">
+    <fieldset>
+      <legend>Manifest sample</legend>
+      <p class="muted">Runs an existing, already-labelled <code>data/manifest.csv</code> row
+        through the pipeline (video or text, detected automatically).</p>
+      <label>
+        <input type="radio" name="mode" value="sample_id" checked> sample_id
+      </label>
+      <input type="text" name="sample_id" placeholder="e.g. b1ce1815" class="text-input">
+    </fieldset>
+
+    <fieldset>
+      <legend>Live URL</legend>
+      <p class="muted">Scrapes the URL directly (<code>watchdog.scraper.scrape_url()</code>) —
+        video is downloaded, text is extracted from the page — then runs it through the pipeline.
+        Download time (network-bound, not controlled by this project) is excluded from the
+        NFR-02 timing reported below; only pipeline processing is timed.</p>
+      <label>
+        <input type="radio" name="mode" value="url"> URL
+      </label>
+      <input type="text" name="url" placeholder="https://..." class="text-input">
+    </fieldset>
+
+    <button type="submit" class="button">Run pipeline</button>
+  </form>
+</div>
+
+{% if result %}
+<div class="card">
+  <h2>Result — {{ result.label }}</h2>
+  <table class="kv-table">
+    <tr><th>Media type</th><td>{{ result.media_type }}</td></tr>
+    <tr>
+      <th>Pipeline processing time (NFR-02)</th>
+      <td>
+        <span class="numeric">{{ '%.2f'|format(result.elapsed_s) }}s</span>
+        of {{ result.budget_s }}s budget —
+        {% if result.within_budget %}
+          <span class="pill pill-green">WITHIN BUDGET</span>
+        {% else %}
+          <span class="pill pill-red">OVER BUDGET</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr><th>Psynth</th><td class="numeric">{{ '%.4f'|format(result.psynth) if result.psynth is not none else 'N/A (both modalities abstained)' }}</td></tr>
+    <tr><th>Modalities used</th><td>{{ result.modalities_used|join(', ') or 'none' }}</td></tr>
+  </table>
+
+  {% if result.decision is none %}
+    <p class="muted">No violation raised — Psynth never crossed
+      <code>config.PSYNTH_THRESHOLD</code>, or crossed it without matching one of the three
+      statutorily-modelled violation types. This is the normal outcome for most content, not a
+      failure of the run.</p>
+  {% else %}
+    <p>
+      <span class="pill pill-type">{{ result.violation.violation_type }}</span>
+      complaint recorded.
+      <a href="{{ url_for('violation_detail', violation_id=result.violation.id) }}">View full evidentiary detail →</a>
+    </p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,5 @@
+original_sample_id,original_publisher,top_match_sample_id,top_match_publisher,correctly_attributed,similarity,flagged_at_0.82
+0e36a519,TheCable,0e36a519,TheCable,True,0.8675553798675537,True
+9f4a0ed3,Punch Newspapers,9f4a0ed3,Punch Newspapers,True,0.9120326042175293,True
+967728cf,Businessday NG,967728cf,Businessday NG,True,0.9034030437469482,True
+49d54fcd,LEADERSHIP Newspapers,49d54fcd,LEADERSHIP Newspapers,True,0.9009007811546326,True

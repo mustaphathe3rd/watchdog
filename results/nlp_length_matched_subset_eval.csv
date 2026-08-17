@@ -1,0 +1,2 @@
+n,n_authentic,n_synthetic,accuracy,precision,recall,f1,fpr_authentic,n_fp_authentic,mean_prob_synthetic_authentic,mean_prob_synthetic_synthetic,band
+40,19,21,0.85,0.8947368421052632,0.8095238095238095,0.85,0.10526315789473684,2,0.2112273595442897,0.700865880719253,200-850 (length-matched)

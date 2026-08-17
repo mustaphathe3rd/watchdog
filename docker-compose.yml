@@ -1,0 +1,47 @@
+# =============================================================================
+# docker-compose.yml  —  PostgreSQL for Local Development
+# =============================================================================
+# WHY THIS EXISTS:
+#   Day 1's README documented a manual `sudo apt install postgresql` +
+#   `sudo -u postgres psql -c "CREATE USER..."` setup. That works, but it's
+#   OS-specific (won't match Windows/macOS students exactly) and leaves a
+#   permanent system service running. This gives an identical, disposable
+#   PostgreSQL 15 instance on any machine with Docker installed — matching
+#   the NFR-04 requirement (PostgreSQL specifically, not SQLite) without the
+#   manual install.
+#
+# Credentials match .env.example exactly — no config changes needed.
+#
+# USAGE:
+#   docker compose up -d        # start Postgres in the background
+#   python setup_db.py          # create tables (same as before)
+#   docker compose down         # stop it
+#   docker compose down -v      # stop it AND wipe all data (fresh start)
+#
+# If you'd rather use a native install, the Day 1 README instructions still
+# work exactly as written — this file is an alternative, not a replacement.
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: naija_watchdog_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: watchdog_user
+      POSTGRES_PASSWORD: watchdog_pass
+      POSTGRES_DB: naija_watchdog
+    ports:
+      - "5432:5432"
+    volumes:
+      # Named volume — survives `docker compose down`, wiped only by `down -v`
+      - naija_watchdog_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U watchdog_user -d naija_watchdog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  naija_watchdog_pgdata:
+    name: naija_watchdog_pgdata
