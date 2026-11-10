@@ -12,6 +12,22 @@
 #
 # Credentials match .env.example exactly — no config changes needed.
 #
+# ⚠ ON THIS MACHINE, THIS FILE IS NOT WHAT'S ACTUALLY IN USE (found
+#   2026-09-01, see docs/PROJECT_CONTEXT.md's "PostgreSQL 14 native vs
+#   Docker 15" entry). A native Ubuntu install of PostgreSQL 14.18 already
+#   holds port 5432 here, so `docker compose up -d`'s container starts and
+#   reports "healthy" (its healthcheck only probes from inside the
+#   container) but its `5432:5432` port mapping never actually binds —
+#   `docker ps` shows bare `5432/tcp`, no host-side mapping. The app has
+#   been talking to native Postgres 14 the whole time; every real violation
+#   row lives there, not in this container. Both happen to work, so nothing
+#   ever failed loudly — `watchdog/db_connector.get_engine()` now logs a
+#   WARNING if the server it actually connects to doesn't match the version
+#   this file declares, specifically so this doesn't have to be rediscovered
+#   by accident again. If you're on a machine where nothing already holds
+#   5432, this file works as originally intended — the warning above is a
+#   this-machine fact, not a defect in the file itself.
+#
 # USAGE:
 #   docker compose up -d        # start Postgres in the background
 #   python setup_db.py          # create tables (same as before)

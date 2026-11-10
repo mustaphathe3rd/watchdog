@@ -323,6 +323,21 @@ DATABASE_URL = os.getenv(
 )
 STORE_METADATA_ONLY_ON_VIOLATION = True
 
+# Real server this project actually runs against (verified 2026-09-01, see
+# docs/PROJECT_CONTEXT.md's "PostgreSQL 14 native vs Docker 15" entry and
+# Table 3.8's correction): a native Ubuntu install of PostgreSQL 14.18 holds
+# port 5432 and every real violation row. `docker compose up -d` (see
+# docker-compose.yml) starts postgres:15-alpine successfully, but its port
+# mapping silently fails to bind because 5432 is already taken — `docker ps`
+# still reports the container "healthy" throughout, since its healthcheck
+# only probes the port from inside the container. This constant is what the
+# compose file declares, used by db_connector.get_engine()'s startup check
+# to warn if the server actually connected to ever stops matching it (e.g.
+# a reboot that starts Docker before the native service, which would then
+# silently route the live pipeline at an empty database — the same silent-
+# wrong-target shape as bugs #6/#9/#10/#12 in the bug log).
+DOCKER_COMPOSE_POSTGRES_VERSION = 15
+
 
 # ── yt-dlp Authentication (optional — for Facebook/Instagram downloads) ──────
 # Both platforms block anonymous automated video downloads. yt-dlp supports

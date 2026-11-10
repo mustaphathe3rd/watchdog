@@ -257,6 +257,48 @@ def get_engine(db_url: str = DATABASE_URL):
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
 
+    # ── WARN ON docker-compose.yml / actual-server VERSION DRIFT ─────────────
+    # FOUND IN PRODUCTION (2026-09-01): docker-compose.yml starts
+    # postgres:15-alpine, but a native Ubuntu install of PostgreSQL 14 was
+    # already holding port 5432 on this machine, so the container's port
+    # mapping silently never binds (`docker ps` still reports it "healthy" —
+    # its healthcheck only probes from inside the container). The app has
+    # been talking to the native 14.18 server the entire time; every real
+    # violation row lives there, not in the container. Nothing failed, so
+    # nothing surfaced this on its own — same silent-wrong-target shape as
+    # bugs #6/#9/#10/#12 in docs/PROJECT_CONTEXT.md's bug log. This check
+    # makes that drift visible the moment a connection is actually made,
+    # rather than requiring someone to notice by chance (as happened here):
+    # if the server this engine just connected to doesn't match what
+    # docker-compose.yml declares, log it loudly. Non-fatal by design — a
+    # version mismatch alone doesn't mean the wrong data is being used
+    # (native 14 is, currently, the correct/intended target; see config.py's
+    # DOCKER_COMPOSE_POSTGRES_VERSION comment) — but it is exactly the kind
+    # of thing that must never fail silently a second time, since the
+    # failure mode this guards is the live pipeline routing at a different,
+    # possibly-empty database.
+    if not is_sqlite:
+        try:
+            from config import DOCKER_COMPOSE_POSTGRES_VERSION
+            with engine.connect() as _probe:
+                _server_version = _probe.dialect.server_version_info
+            if _server_version and _server_version[0] != DOCKER_COMPOSE_POSTGRES_VERSION:
+                logger.warning(
+                    f"DATABASE VERSION DRIFT: connected to PostgreSQL "
+                    f"{'.'.join(str(p) for p in _server_version)}, but "
+                    f"docker-compose.yml declares postgres:{DOCKER_COMPOSE_POSTGRES_VERSION}-alpine. "
+                    f"This almost certainly means a native PostgreSQL install is holding port "
+                    f"5432 and `docker compose up -d`'s container is not actually being used "
+                    f"(its port mapping fails to bind silently when this happens — `docker ps` "
+                    f"still reports it healthy). Confirm DATABASE_URL is pointing at the server "
+                    f"that actually holds your data before trusting reads/writes."
+                )
+        except Exception as _probe_err:
+            # Never let this diagnostic check block real startup — e.g. DB
+            # genuinely unreachable, in which case the caller's own
+            # connection attempt below will raise the real, actionable error.
+            logger.debug(f"Skipped docker-compose version-drift check: {_probe_err}")
+
     # ── ENFORCE IMMUTABILITY on violations table (NFR-04) ─────────────────────
     # Attach a before_execute event listener that raises an error if any
     # UPDATE or DELETE is attempted on the violations table.

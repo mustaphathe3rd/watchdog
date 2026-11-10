@@ -83,6 +83,55 @@ was corrected to s.36(2)/s.37(2) on 2026-08-04 (see `watchdog/ip_similarity.py`'
 build entry below for the full IP-similarity-matrix work this correction landed
 alongside); the write-up itself still needs the same correction in Chapter 3.
 
+**FLAG FOR CHAPTER 3 REWRITE — Table 3.8 database claim (found 2026-09-01).**
+Table 3.8 states the production database as "PostgreSQL 15 via Docker Compose."
+That is not what actually runs: a native Ubuntu install of **PostgreSQL 14.18**
+holds port 5432 on the development machine, so `docker compose up -d`'s
+`postgres:15-alpine` container starts and reports "healthy" (its healthcheck
+only probes from inside the container) but its `5432:5432` port mapping never
+binds — confirmed directly with `docker inspect` (`"5432/tcp":[]`, no host-side
+mapping at all) and by connecting through `config.DATABASE_URL` and reading
+back `SELECT version()`, which returns PostgreSQL 14.18, not 15. The app,
+`setup_db.py`, and every one of the 4 real rows currently in `violations` have
+been talking to the native PostgreSQL 14 server since Day 1, not the Docker
+container. **Same pattern as the Section 108 correction above and the RTX
+3080/§3.15, MediaPipe-API/§3.12 A corrections elsewhere in this file: the
+document describes the intended setup, not what actually ran, and nothing
+failed because both connections happen to work** — this one just went longer
+without being noticed since a wrong DB *version* string, unlike a wrong
+statute or a `ModuleNotFoundError`, has no code path that ever surfaces it on
+its own. **Action taken:** `watchdog/db_connector.get_engine()` now logs a
+`WARNING` whenever the server it actually connects to doesn't match the
+Postgres version `docker-compose.yml` declares (`config.DOCKER_COMPOSE_POSTGRES_VERSION`),
+so this can't go unnoticed silently a second time; `docker-compose.yml`'s own
+header now states the discrepancy explicitly rather than presenting itself as
+the thing actually in use. The compose file was kept (not removed) — it's a
+real, working alternative for anyone setting this project up on a machine that
+doesn't already have something on 5432, which is the more common case off
+this one development machine. **Action needed in the write-up:** Table 3.8
+should read "PostgreSQL 14.18 (native)," not "PostgreSQL 15 via Docker
+Compose."
+
+**NFR-04 re-verified directly against this native Postgres 14.18 instance
+(2026-09-01),** not only against the SQLite fixtures `tests/conftest.py` uses
+for `pytest tests/`. Table 4.9 reports NFR-04 as met; that conclusion had only
+ever been exercised two ways before today — SQLAlchemy's own documentation
+claim that ORM/event-hook behaviour is identical across backends (§2.4.3,
+cited above), and `setup_db.py`'s own dummy test-row UPDATE against whatever
+`DATABASE_URL` happens to point to (which *has* been real Postgres 14 since
+Day 1, but that fact was never stated explicitly). Today's check ran a direct,
+disposable probe against the live database holding the real 4 violation rows:
+connected via `config.DATABASE_URL`, read a real row, attempted a raw `UPDATE`
+and a raw `DELETE` against it (both correctly raised `PermissionError` before
+reaching Postgres, row unchanged on re-read), then exercised
+`allow_violation_mutation()` the same way (`UPDATE` went through inside the
+context manager, then rolled back — never committed) to confirm the bypass
+path also isn't just a SQLite-only code path. Nothing was committed; the real
+`violations` table still holds exactly the same 4 rows it held before. Table
+4.9's "met" verdict for NFR-04 is now confirmed against the server that
+actually holds the data, not only inferred from a same-behaviour claim about
+a different backend.
+
 **`watchdog/ip_similarity.py` build (2026-08-04, Day 7, §3.12 B) — the last
 unbuilt piece of Objective 2.** Embeds a "protected corpus" once via
 sentence-transformers (`all-MiniLM-L6-v2`) and scores arbitrary input text
@@ -262,6 +311,7 @@ and because several are worth citing in Chapter 4 as genuine engineering finding
 | 10 | `watchdog/cv_engine.py`'s `analyze_clip()` raised `ModuleNotFoundError: No module named 'mediapipe.python'` the first time it was actually run against a real video | Written against MediaPipe's legacy `solutions.face_mesh` API (`from mediapipe.python.solutions import face_mesh`), which reads as correct and imports fine at the module level (the failing import is inside the function, lazy-loaded). The installed `mediapipe==1.0.0` removed the entire `solutions` API in favour of the Tasks API — the old call path no longer exists at all. No test existed for `cv_engine.py` at the time, so nothing exercised the function until it was actually called | Rewired the dense-landmark stage onto `mediapipe.tasks.python.vision.FaceLandmarker`, which requires an explicit downloaded model bundle (`models/face_landmarker.task`, `config.FACE_LANDMARKER_MODEL_PATH`) rather than one bundled in the package. Added `tests/test_cv_engine.py` so this path has coverage going forward |
 | 11 | **Near-miss, not an actual failure.** `config.MANIFEST_PATH` (`data/manifest.csv`) resolved to nothing — the entire `data/` directory (manifest, strata.csv, raw + processed video/text) was found sitting at `dashboard/data/` instead of the project root, discovered 2026-08-04 while starting the full-corpus CV evaluation | Timestamps show `dashboard/data`'s contents predate `dashboard/` itself being touched — consistent with `data/` having been moved under `dashboard/` (likely while scaffolding the Flask dashboard directory layout) without updating `config.py`, and no dashboard app code exists yet that actually reads from there. A stray, fully-empty directory literally named `{data/{raw/{video,text},processed,protected_ip},models,watchdog,dashboard/{templates,static},reports,tests,notebooks}` was also found alongside it — an unrelated leftover from an earlier `mkdir -p` brace-expansion that didn't expand (e.g. run under `sh` instead of `bash`) | Moved `dashboard/data` back to `data/`, deleted the stray brace-expansion directory, and verified `data/strata.csv`'s `matched_subset` crosstab still reads 4 authentic / 9 synthetic post-move (i.e. no rows were lost or corrupted by the relocation). **This would have been a fourth instance of the silent-failure pattern behind bugs #6/#9/#10** — caught only because the manifest was inspected before any script ran, not because any script failed loudly. `watchdog/dataset_manager.require_manifest_exists()` was added afterward specifically to make this class of mistake fail loudly next time: evaluation entry-point scripts (`evaluate_nlp_heuristics.py`, `evaluate_cv_heuristics.py`) now call it at startup and refuse to run against a missing manifest, rather than silently evaluating zero samples. Deliberately not enforced inside `load_manifest()` itself or at `config.py` import time — a missing manifest is the normal, correct state on a first run before `collect_dataset.py` has ever executed, and library code returning an empty DataFrame there is intentional, not a bug |
 | 12 | **Two `setup_db.py` test fixtures (`publisher_name="TEST SETUP"`, `DEEPFAKE_IMPERSONATION`) survived undetected in the real `violations` table for over a month** (inserted 2026-07-03 and 2026-07-14, found 2026-08-13) | `setup_db.py`'s Step 5 cleanup deletes its own throwaway violation via the `allow_violation_mutation()` admin bypass, but wrapped that delete in `except Exception: logger.warning(..., "non-critical")` — on both real runs, cleanup silently failed (or was interrupted) and the script still printed "DAY 1 DATABASE SETUP COMPLETE" and exited 0. Neither run raised anything an operator would see. Found only when the Days 21-22 dashboard rendered 3 violations against an expected 1 | `purge_setup_fixtures.py` (new, idempotent — queries live by `publisher_name`) removed both, independently re-verified by querying `violations` again afterward (count: 1, the real MTN-ad detection). `setup_db.py`'s Step 5 no longer swallows cleanup failure as "non-critical" — it now exits non-zero and skips the success banner, AND independently re-queries for the row after commit rather than trusting a clean commit as proof (a clean commit is exactly what this bug's two occurrences had). Re-run twice against the real DB after the fix: both times exited 0 with `VERIFIED gone`, and `violations` stayed at exactly 1 row throughout |
+| 13 | **Two real, distinct `violations` rows + two distinct complaint PDFs exist for the exact same content** (`manifest sample b1ce1815-...`, the MTN ad; `detected_at` 29ms apart — 2026-08-31, found 2026-09-01) | `dashboard/app.py`'s `/upload` route (`_run_sample_id`/`_run_url` → `main_pipeline.process_media()`) has **no deduplication of any kind** against `media_log.url_hash` or an existing `violations` row before running the full pipeline — `db_connector.log_media_ingestion()` unconditionally `INSERT`s a fresh `MediaLog` row on every call. Flask 3.0.3's `app.run()` sets `options.setdefault("threaded", True)` (confirmed by reading `flask/app.py` directly — Flask has defaulted the dev server to threaded since 1.0, independent of `config.FLASK_DEBUG`), so `dashboard/app.py`'s own `if __name__ == "__main__": app.run(...)` entry point serves the Werkzeug dev server multi-threaded by default. Two overlapping `POST /upload` requests for the same `sample_id` (a double-click, or two browser tabs) are therefore handled on two concurrent threads, each independently completing its own full detection → fusion → rules → PDF pipeline and calling `record_violation()`/`record_report()` — confirmed from `results/dashboard_pipeline_latency.csv`: the two runs' start times (back-computed from `elapsed_s`) are ~4.08s apart but their completions are ~3ms apart in the CSV log / ~29ms apart in `violations.detected_at`, which only overlapping execution can produce (a single-threaded server would have serialised the second request's *start* to after the first's full ~21.7s completion) | **Not fixed.** No code change was made — see the write-up limitation/§5.3 recommendation this was logged for instead. The two real rows (`1b8d4940-...`, `b097703c-...`) and their two PDFs (`reports/complaint_1b8d4940-...pdf`, `reports/complaint_b097703c-...pdf`) were deliberately left in place: both are genuine, correctly-computed detections of real content, not fake test fixtures like bug #12's rows, so `allow_violation_mutation()` is not an appropriate tool here even though it's technically capable of removing them — see CLAUDE.md rule 5 ("never in the live pipeline... genuine admin operations") and the explicit instruction not to delete them, since the row count is itself the evidence an examiner should be able to reproduce |
 
 **Bug #6 is the important one.** It produced no error — the run reported complete
 success while destroying five of six samples. Any operation writing files derived
@@ -310,6 +360,33 @@ continuing is a choice to hide the failure, not fix it, and should be
 reserved for cases where "continue anyway" is genuinely the correct
 behaviour, which "a legal audit table still contains a labelled test
 fixture" never is.
+
+**Bug #13 is a fifth instance of the same silent-failure family, in a new
+shape again: this time nothing is wrong, exactly twice.** #6/#9 were silent
+data corruption, #10 silent-under-review, #12 a caught exception downgraded
+to a warning — #13 produces no exception, no warning, and no incorrect
+value anywhere: both violation rows are fully correct, independently
+verifiable detections of the same real content. The failure is structural,
+not a bug in any single computation — the system has no concept of "this
+artifact was already processed," so two overlapping requests for the same
+content are two entirely legitimate-looking successes from the code's point
+of view. This is also the first bug in this log where the append-only
+design (NFR-04) — built specifically so a bad actor or an accidental
+mistake can't quietly erase evidence — makes the *consequence* of the bug
+permanent rather than just the bug itself being hard to notice: bugs #6/#9's
+corrupted files could be re-scraped, #12's fake rows could be (and were)
+purged via the admin bypass because they were indisputably not real, but
+#13's two rows are indisputably real and must stay, by the same rule that
+makes the whole table trustworthy. The practical consequence for a
+deploying agency: **double-submitting one artifact currently produces two
+separate legal complaints that can never be merged or removed** — logged as
+a limitation and a §5.3 recommendation in the write-up (deduplicate on
+`url_hash` *before* running the pipeline, not after) rather than patched
+here, since a real fix touches the request-handling layer (an idempotency
+key, a `SELECT ... FOR UPDATE` gate, or a unique constraint plus
+conflict-handling on `media_log.url_hash`) and deserves its own
+design/testing pass rather than a same-day patch bolted onto a Day 21-22
+route.
 
 **Still unresolved:** Facebook video downloads fail with `No video formats found`
 even with valid `c_user`/`xs` cookies loading correctly. Auth is confirmed working
